@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to My Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        .container {
+            text-align: center;
+        }
+        .welcome-message {
+            font-size: 2em;
+            margin-bottom: 50px;
+        }
+        .game-button {
+            display: inline-block;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        .game-button img:hover {
+            transform: scale(1.1);
+        }
+        .game-button img {
+            width: 150px; 
+            height: auto; 
+            border-radius: 10px;
+            transition: transform 0.2s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="welcome-message">Welcome to my page</div>
+        <a href="{% url 'ball_sort' %}" class="game-button">
+            <img src="{% static 'images/ball_sort.PNG' %}" alt="Play Game">
+        </a>
+    </div>
+</body>
+</html>

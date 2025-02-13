@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ball Sort Game</title>
+    <link rel="stylesheet" href="{% static 'css/ballsort.css' %}">
+</head>
+<body>
+    <h1>Ball Sort</h1>
+    
+    <div class="game-container">
+        <canvas id="ballCanvas" width="1000" height="600"></canvas>
+        <button id="undoBtn">Undo</button>
+    </div>
+    
+    <div id="movelist">Next moves: (0, 0)</div>
+    
+    <div id="winScreen">
+        <h1 id="winMessage">You Win!</h1>
+        <button id="playAgainBtn">Play Again</button>
+    </div>
+
+    <script type="module" src="{% static 'js/gameObjects.js' %}"></script>
+    <script type="module" src="{% static 'js/ballsort.js' %}"></script>
+</body>
+</html>
