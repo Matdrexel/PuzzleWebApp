@@ -45,6 +45,9 @@ document.addEventListener("DOMContentLoaded", function() {
     // Event listener for "Undo" button
     document.getElementById("undoBtn").addEventListener("click", undoMove);
 
+    // Event listener for "Hint" button
+    document.getElementById("hintBtn").addEventListener("click", updateSolution);
+
     // Event listeners for controls
     document.addEventListener("keydown", keyDownHandler);
 
@@ -121,7 +124,7 @@ document.addEventListener("DOMContentLoaded", function() {
         document.getElementById("movelist").innerHTML = move_list;
     };
 
-    function updateSolution(game) {
+    function updateSolution() {
         if (socket.readyState === WebSocket.OPEN) {
             console.log("Made it here!");
             socket.send(game.toJson());
@@ -133,8 +136,7 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     }
 
-    setInterval(() => updateSolution(game), 1000);
-
+    // Draw functions
     function draw() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         game.draw(ctx, 0);

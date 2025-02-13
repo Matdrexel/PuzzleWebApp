@@ -278,7 +278,7 @@ class Game {
         }
     }
 
-    // TODO
+    // Converts Game object to JSON for python to operate on it
     toJson() {
         let jsonArray = [];
         for (let i = 0; i < this.#capsules.length; i++)

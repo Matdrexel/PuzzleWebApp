@@ -1,6 +1,7 @@
 #include "sortballs.h"
 #include <vector>
 
+// TODO: temporary test function. Needs to be modified
 int** sort_balls(int** game, int numCaps, int maxSize, int* resultSize) {
     *resultSize = 3;
     int** res = new int*[*resultSize];
