@@ -48,15 +48,21 @@ class MyWebSocketConsumer(AsyncWebsocketConsumer):
         num_capsules = len(ball_list)
         if num_capsules == 0:
             return []
-        balls = np.array(ball_list)
+        balls = np.array(ball_list, dtype=np.int32)
         res_size = ctypes.c_int()
 
+        ball_pointers = (ctypes.POINTER(ctypes.c_int) * num_capsules)()
+        for i in range(num_capsules):
+            ball_pointers[i] = balls[i].ctypes.data_as(ctypes.POINTER(ctypes.c_int))
+
+        print("pre-solution")
         result = solvelib.ball_solution(
-            balls.ctypes.data_as(ctypes.POINTER(ctypes.POINTER(ctypes.c_int))), 
+            ball_pointers, 
             num_capsules, 
             max_size,
             ctypes.byref(res_size)
         )
+        print("post-solution")
 
         result_memory = [[result[i][j] for j in range(2)] for i in range(res_size.value)]
         solvelib.free_memory(result)

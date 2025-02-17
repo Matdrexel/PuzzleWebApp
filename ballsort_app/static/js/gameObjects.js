@@ -98,8 +98,7 @@ class Capsule {
             ctx.closePath();
         }
     }
-
-    // TODO
+    
     toJson() {
         let jsonArray = []
         for (let i = 0; i < this.max_size; i++) {
