@@ -14,7 +14,7 @@ TARGET = main/sortballs.so
 
 # Source files.
 SOURCE_FOLD = ballsort_app/static/cpp/
-SOURCES = $(SOURCE_FOLD)solve.cpp $(SOURCE_FOLD)sortballs.cpp
+SOURCES = $(SOURCE_FOLD)solve.cpp $(SOURCE_FOLD)sortballs.cpp $(SOURCE_FOLD)game.cpp
 
 # The default target.
 all: $(TARGET)

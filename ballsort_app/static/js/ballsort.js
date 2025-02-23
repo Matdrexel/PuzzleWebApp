@@ -5,7 +5,7 @@ document.addEventListener("DOMContentLoaded", function() {
     const ctx = canvas.getContext("2d");
     
     // Ball properties
-    let num_ball_colours = 10;
+    let num_ball_colours = 10; // TODO: change to 10
 
     // Capsule properties
     let max_size = 4;

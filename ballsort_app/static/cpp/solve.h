@@ -15,7 +15,7 @@ extern "C" {
 
     int** EXPORT ball_solution(int**, int, int, int*);
 
-    void EXPORT free_memory(int**);
+    void EXPORT free_memory(int**, int);
 }
 
 #endif

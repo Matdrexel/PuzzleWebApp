@@ -20,7 +20,7 @@ solvelib = ctypes.CDLL(lib_path)
 solvelib.ball_solution.argtypes = (ctypes.POINTER(ctypes.POINTER(ctypes.c_int)), ctypes.c_int, ctypes.c_int, ctypes.POINTER(ctypes.c_int))
 solvelib.ball_solution.restype = ctypes.POINTER(ctypes.POINTER(ctypes.c_int))
 
-solvelib.free_memory.argtypes = (ctypes.POINTER(ctypes.POINTER(ctypes.c_int)),)
+solvelib.free_memory.argtypes = (ctypes.POINTER(ctypes.POINTER(ctypes.c_int)),ctypes.c_int)
 
 # TODO
 class MyWebSocketConsumer(AsyncWebsocketConsumer):
@@ -65,5 +65,5 @@ class MyWebSocketConsumer(AsyncWebsocketConsumer):
         print("post-solution")
 
         result_memory = [[result[i][j] for j in range(2)] for i in range(res_size.value)]
-        solvelib.free_memory(result)
+        solvelib.free_memory(result, res_size)
         return result_memory
