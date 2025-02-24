@@ -6,6 +6,7 @@ import numpy as np
 from channels.generic.websocket import AsyncWebsocketConsumer
 
 # Determine the correct library extension
+# NOTE: testing is being done on a Linux system. Windows is currently non-functional due to incompatible cpp files when creating a dll
 if sys.platform.startswith('win'):
     libname = "sortballs.dll"
 elif sys.platform.startswith('darwin'):
@@ -22,7 +23,7 @@ solvelib.ball_solution.restype = ctypes.POINTER(ctypes.POINTER(ctypes.c_int))
 
 solvelib.free_memory.argtypes = (ctypes.POINTER(ctypes.POINTER(ctypes.c_int)),ctypes.c_int)
 
-# TODO
+# TODO: make modules private that don't need to be public
 class MyWebSocketConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         await self.accept()

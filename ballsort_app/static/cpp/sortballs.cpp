@@ -6,7 +6,7 @@
 
 using namespace std;
 
-// TODO
+// Loop to find a solution to the ball sort game using brute force
 vector<pair<unsigned int, unsigned int>> solve_game(deque<Game>& game_wl) {
     while (!game_wl.empty()) {
         Game game = game_wl.front();
@@ -24,7 +24,7 @@ vector<pair<unsigned int, unsigned int>> solve_game(deque<Game>& game_wl) {
 }
 
 
-// TODO
+// Finds a solution to the ball sort game and converts it into integer pointers
 int** sort_balls(int** game, int numCaps, int maxSize, int* resultSize) {
     Game new_game(game, numCaps, maxSize);
     deque<Game> game_wl; 

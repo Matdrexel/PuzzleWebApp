@@ -3,6 +3,7 @@
 
 using namespace std;
 
+// creates a new game by converting a doubly indirect integer pointer into a vector
 Game::Game(int** game, unsigned int numCaps, unsigned int maxSize) {
     for (unsigned int i = 0; i < numCaps; i++) {
         vector<int> capsule;
@@ -73,20 +74,27 @@ vector<pair<unsigned int, unsigned int>> Game::getMoves() {
     return moves;
 }
 
-// TODO
+// Semi-optimized brute force method of producing all possible moves that can be made
+// TODO: improve checking algorithm to see if game has been seen before
+// TODO: prevent branches where balls are being moved back and forth between capsules in between other moves
 deque<Game> Game::nextGames() {
     deque<Game> result;
     for (unsigned int i = 0; i < numCaps; i++) {
+        // this removes cases where a capsule is full or one away from being full of one colour from being emptied
         if (!same_colour[i] || ((capsules[i].size() < maxSize - 1) && (capsules[i].size() != 0))) {
             int try_ball = capsules[i].back();
             int empty = -1;
             for (unsigned int j = 0; j < numCaps; j++) {
+                // don't move balls back into the same capsule it started
                 if (i == j)
                     continue;
+                // don't add balls to a full capsule
                 else if (capsules[j].size() == maxSize)
                     continue;
+                // record a maximum of one empty capsule
                 else if (capsules[j].size() == 0) 
                     empty = j;
+                // only move ball into a capsule with the same coloured top ball
                 else if (capsules[j].back() == try_ball) {
                     pair<unsigned int, unsigned int> move = {i, j};
                     Game new_game(*this, move);
@@ -97,10 +105,12 @@ deque<Game> Game::nextGames() {
                             break;
                         }
                     }
+                    // only add this as a move if the new game has not already been seen in the path
                     if (havent_seen)
                         result.push_back(new_game);
                 }
             }
+            // prevent moving a ball in a capsule with only one capsule to an empty capsule
             if (empty != -1 && !same_colour[i]) {
                 pair<unsigned int, unsigned int> move = {i, empty};
                 Game new_game(*this, move);
