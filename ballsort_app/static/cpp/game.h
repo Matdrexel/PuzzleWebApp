@@ -4,6 +4,8 @@
 #include <utility>
 #include <vector>
 #include <deque>
+#include <set>
+
 
 class Game {
     private:
@@ -13,7 +15,7 @@ class Game {
         //
         std::vector<std::vector<int>> capsules;
         std::vector<bool> same_colour;
-        std::vector<std::vector<std::vector<int>>> prev_moves; // TODO: improve this
+        std::set<std::vector<std::vector<int>>> prev_moves;
         std::vector<std::pair<unsigned int, unsigned int>> moves;
         unsigned int maxSize;
         unsigned int numCaps;

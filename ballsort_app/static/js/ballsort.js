@@ -8,7 +8,7 @@ document.addEventListener("DOMContentLoaded", function() {
     let num_ball_colours = 10; // TODO: make this customizable
 
     // Capsule properties
-    let max_size = 4;
+    let max_size = 5; // TODO: make this customizable
     let num_caps = num_ball_colours + 2;
     let capsWidth = canvas.width / num_caps / 5 * 4;
     let capsHeight = canvas.height / 5 * 2;

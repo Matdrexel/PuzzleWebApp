@@ -40,15 +40,15 @@ Game::Game(Game game, pair<unsigned int, unsigned int> move) {
     this->same_colour = game.same_colour;
     this->prev_moves = game.prev_moves;
     
-    this->prev_moves.push_back(game.capsules);
+    this->prev_moves.insert(game.capsules);
 
     this->moves.push_back(move);
     this->capsules[move.second].push_back(this->capsules[move.first].back());
     this->capsules[move.first].pop_back();
 
-    if (this->capsules[move.first].size() == 0)
+    if (this->capsules[move.first].size() == 0) {
         this->same_colour[move.first] = true;
-    else {
+    } else {
         bool same = true;
         for (unsigned int i = 1; i < this->capsules[move.first].size(); i++) {
             if (this->capsules[move.first][i] != this->capsules[move.first][0]) {
@@ -75,7 +75,6 @@ vector<pair<unsigned int, unsigned int>> Game::getMoves() {
 }
 
 // Semi-optimized brute force method of producing all possible moves that can be made
-// TODO: improve checking algorithm to see if game has been seen before
 // TODO: prevent branches where balls are being moved back and forth between capsules in between other moves
 deque<Game> Game::nextGames() {
     deque<Game> result;
@@ -98,16 +97,10 @@ deque<Game> Game::nextGames() {
                 else if (capsules[j].back() == try_ball) {
                     pair<unsigned int, unsigned int> move = {i, j};
                     Game new_game(*this, move);
-                    bool havent_seen = true;
-                    for (unsigned int k = 0; k < prev_moves.size(); k++) {
-                        if (new_game.capsules == prev_moves[k]) {
-                            havent_seen = false;
-                            break;
-                        }
-                    }
                     // only add this as a move if the new game has not already been seen in the path
-                    if (havent_seen)
+                    if (prev_moves.find(new_game.capsules) == prev_moves.end()) {
                         result.push_back(new_game);
+                    }
                 }
             }
             // prevent moving a ball in a capsule with only one capsule to an empty capsule
