@@ -11,7 +11,9 @@ class Capsule {
         [6, "pink"],
         [7, "grey"],
         [8, "darkslateblue"],
-        [9, "brown"]]);
+        [9, "brown"],
+        [10, "black"],
+        [11, "lawngreen"]]);
 
     static get_colour(n) {
         if (this.colour_dict.has(n))

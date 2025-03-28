@@ -10,15 +10,15 @@ using namespace std;
 vector<pair<unsigned int, unsigned int>> solve_game(deque<Game>& game_wl) {
     while (!game_wl.empty()) {
         Game game = game_wl.front();
-        game_wl.pop_front();
 
         if (game.solved()) {
             return game.getMoves();
         }
+        game_wl.pop_front();
+
         deque<Game> nexts = game.nextGames();
         nexts.insert(nexts.end(), game_wl.begin(), game_wl.end());
         game_wl = nexts;
-        cout << "size: " << nexts.size() << "\n";
     }
     return {};
 }

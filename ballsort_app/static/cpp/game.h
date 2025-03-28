@@ -9,10 +9,6 @@
 
 class Game {
     private:
-        // TODO: remove after testing is done
-        static inline int ID = 0;
-        int this_ID;
-        //
         std::vector<std::vector<int>> capsules;
         std::vector<bool> same_colour;
         std::set<std::vector<std::vector<int>>> prev_moves;

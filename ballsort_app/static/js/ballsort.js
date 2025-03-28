@@ -104,7 +104,9 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     // Handling c++ solve function:
-    const socket = new WebSocket("ws://127.0.0.1:8000/ws/socket-server/");
+    const protocal = window.location.protocal === "https:" ? "wss:" : "ws:";
+    const host = window.location.host;
+    const socket = new WebSocket(`${protocal}//${host}/ws/socket-server/`);
 
     // Wait for WebSocket to open before sending messages
     socket.onopen = function () {

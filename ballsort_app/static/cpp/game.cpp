@@ -27,12 +27,6 @@ Game::Game(int** game, unsigned int numCaps, unsigned int maxSize) {
 // CONSTRAINT: move must be valid
 // creates a new game after moving the ball from the first index to the second index in move
 Game::Game(Game game, pair<unsigned int, unsigned int> move) {
-    // TODO for testing
-    this->this_ID = ID;
-    ID++; 
-    cout << ID << " (" << move.first << "," << move.second << ")\n";
-    // TODO for testing
-
     this->maxSize = game.maxSize;
     this->numCaps = game.numCaps;
     this->capsules = game.capsules;
@@ -96,6 +90,7 @@ deque<Game> Game::nextGames() {
                 // only move ball into a capsule with the same coloured top ball
                 else if (capsules[j].back() == try_ball) {
                     pair<unsigned int, unsigned int> move = {i, j};
+                    // TODO: make this more efficient
                     Game new_game(*this, move);
                     // only add this as a move if the new game has not already been seen in the path
                     if (prev_moves.find(new_game.capsules) == prev_moves.end()) {
