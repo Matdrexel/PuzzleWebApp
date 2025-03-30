@@ -1,8 +1,3 @@
----
-bibliography: references.bib
-nocite: "@*"
----
-
 # Welcome to my project!
 
 ## Note: this application is still a work in progress!
