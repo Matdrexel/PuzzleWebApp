@@ -3,7 +3,7 @@
 
 // see "sortballs.cpp" for solution function
 int** ball_solution(int** game, int numCaps, int maxSize, int* resultSize) {
-    return sort_balls(game, numCaps, maxSize, resultSize);
+    return sort_water(game, numCaps, maxSize, resultSize);
 }
 
 // frees the memory associated with a doubly indirect pointer

@@ -4,14 +4,14 @@
 #include <utility>
 #include <vector>
 #include <deque>
-#include <set>
-
 
 class Game {
     private:
-        std::vector<std::vector<int>> capsules;
-        std::vector<bool> same_colour;
-        std::set<std::vector<std::vector<int>>> prev_moves;
+        // capsules[i].first is the water within the capsule
+        // capsules[i].second is the real volume of the capsule
+        // capsules[i].first[j].first is the colour of the water
+        // capsules[i].first[j].second is the volume of that chunk of water
+        std::vector<std::pair<std::vector<std::pair<int, unsigned int>>, unsigned int>> capsules;
         std::vector<std::pair<unsigned int, unsigned int>> moves;
         unsigned int maxSize;
         unsigned int numCaps;
