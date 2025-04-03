@@ -6,7 +6,7 @@
 #include <vector>
 #include <deque>
 
-std::vector<std::pair<unsigned int, unsigned int>> solve_game(std::deque<Game>&);
-int** sort_water(int**, int, int, int*);
+std::vector<std::pair<unsigned int, unsigned int>> solveGame(std::deque<Game>&);
+int** sortWater(int**, int, int, int*);
 
 #endif

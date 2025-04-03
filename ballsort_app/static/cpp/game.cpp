@@ -59,15 +59,15 @@ vector<pair<unsigned int, unsigned int>> Game::getMoves() {
     return moves;
 }
 
-// Semi-optimized brute force method of producing all possible moves that can be made
+// Optimized brute force method of producing all possible moves that can be made
 deque<Game> Game::nextGames() {
     deque<Game> result;
     for (unsigned int i = 0; i < numCaps; i++) {
         // ensure capsule is non-empty
         if (capsules[i].second != 0) {
-            pair<int, unsigned int> try_water = capsules[i].first.back();
+            pair<int, unsigned int> tryWater = capsules[i].first.back();
             // make sure that capsule is not full/almost full
-            if (try_water.second < maxSize) {
+            if (tryWater.second < maxSize) {
                 int empty = -1;
                 for (unsigned int j = 0; j < numCaps; j++) {
                     // don't move water back into the same capsule it started
@@ -77,15 +77,15 @@ deque<Game> Game::nextGames() {
                     else if (capsules[j].second == 0)
                         empty = j;
                     // only move water into a capsule with the same coloured top water and make sure water fits
-                    else if ((capsules[j].first.back().first == try_water.first) && (capsules[j].second + try_water.second <= maxSize)) {
-                        Game new_game(*this, {i, j});
-                        result.push_back(new_game);
+                    else if ((capsules[j].first.back().first == tryWater.first) && (capsules[j].second + tryWater.second <= maxSize)) {
+                        Game newGame(*this, {i, j});
+                        result.push_back(newGame);
                     }
                 }
                 // handles moving water into an empty capsule
                 if ((empty != -1) && (capsules[i].first.size() != 1)) {
-                    Game new_game(*this, {i, empty});
-                    result.push_back(new_game);
+                    Game newGame(*this, {i, empty});
+                    result.push_back(newGame);
                 }
             }
         }

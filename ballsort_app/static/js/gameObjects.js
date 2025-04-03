@@ -1,7 +1,7 @@
 class Capsule {
     balls;
-    max_size;
-    static colour_dict = new Map([
+    maxSize;
+    static colourDict = new Map([
         [0, "red"],
         [1, "blue"],
         [2, "green"],
@@ -12,22 +12,26 @@ class Capsule {
         [7, "grey"],
         [8, "darkslateblue"],
         [9, "brown"],
-        [10, "black"],
-        [11, "lawngreen"]]);
+        [10, "white"],
+        [11, "lawngreen"],
+        [12, "cyan"],
+        [13, "crimson"],
+        [14, "coral"],
+        [15, "khaki"]]);
 
-    static get_colour(n) {
-        if (this.colour_dict.has(n))
-            return this.colour_dict.get(n);
-        return "white";
+    static getColour(n) {
+        if (this.colourDict.has(n))
+            return this.colourDict.get(n);
+        return "black";
     }
 
 
-    constructor(ball_array, max_size) {
-        this.max_size = max_size;
-        if (ball_array.length > max_size)
+    constructor(ballArray, maxSize) {
+        this.maxSize = maxSize;
+        if (ballArray.length > maxSize)
             throw new Error("Too many balls");
 
-        this.balls = [...ball_array];
+        this.balls = [...ballArray];
     }
     
     // returns the top ball, or -1 if the capsule is empty
@@ -40,7 +44,7 @@ class Capsule {
     // attempts to add the ball parameter to the capsule
     // returns true if successful and false if failed
     setBall(ball) {
-        if (this.balls.length === this.max_size) 
+        if (this.balls.length === this.maxSize) 
             return false;
 
         if ((this.balls.length !== 0) && (this.balls[this.balls.length - 1] !== ball))
@@ -54,7 +58,7 @@ class Capsule {
     // throws an error if the capsule overflows
     // this function should only be called when undo-ing a previous move
     forceSetBall(ball) {
-        if (this.balls.length === this.max_size)
+        if (this.balls.length === this.maxSize)
             throw new Error("Undo caused an issue");
         this.balls.push(ball);
     }
@@ -74,7 +78,7 @@ class Capsule {
     isComplete() {
         if (this.isEmpty())
             return true;
-        if (this.balls.length !== this.max_size)
+        if (this.balls.length !== this.maxSize)
             return false;
 
         let colour = this.balls[0];
@@ -85,6 +89,7 @@ class Capsule {
         return true;
     }
 
+    // renders all balls in this capsule
     draw(ctx, x, y, height, width, selected) {
         for (let i = 0; i < this.balls.length; i++) {
             let radius = width / 5 * 2;
@@ -95,7 +100,7 @@ class Capsule {
             else
                 ctx.arc(x + width / 2, y + height - radius - 2 * i * radius, radius, 0, Math.PI * 2);
 
-            ctx.fillStyle = Capsule.get_colour(this.balls[i]);
+            ctx.fillStyle = Capsule.getColour(this.balls[i]);
             ctx.fill();
             ctx.closePath();
         }
@@ -103,7 +108,7 @@ class Capsule {
     
     toJson() {
         let jsonArray = []
-        for (let i = 0; i < this.max_size; i++) {
+        for (let i = 0; i < this.maxSize; i++) {
             if (i < this.balls.length)
                 jsonArray.push(JSON.stringify({"ball": this.balls[i]}));
             else
@@ -116,39 +121,43 @@ class Capsule {
 
 class Game {
     #capsules;
-    #capsule_locations; // contains tuples with 0 being x-pos and 1 being y-pos
+    #capsuleLocations; // contains tuples with 0 being x-pos and 1 being y-pos
     #capsWidth;
     #capsHeight;
     #column;
     #row;
-    #active_index;
-    #prev_moves; // contains tuples with 0 being the from-index and 1 being the to-index
+    #activeIndex;
+    #prevMoves; // contains tuples with 0 being the from-index and 1 being the to-index
+    #solution; // the solution provided by the hint
+    #solutionIndex;
 
 
-    constructor(canvas, num_capsules, max_size, width, height) {
+    constructor(canvas, numCapsules, maxSize, width, height) {
         this.#capsules = [];
-        this.#capsule_locations = [];
-        for (let i = 0; i < num_capsules; i++) {
-            this.#capsules.push(new Capsule([], max_size));
+        this.#capsuleLocations = [];
+        for (let i = 0; i < numCapsules; i++) {
+            this.#capsules.push(new Capsule([], maxSize));
             if (i % 2 === 0)
-                this.#capsule_locations.push([((i / 2) + 0.25) * canvas.width / num_capsules * 2, canvas.height / 10]);
+                this.#capsuleLocations.push([((i / 2) + 0.25) * canvas.width / (Math.ceil(numCapsules / 2) * 2) * 2, (canvas.height / 2) - height - 10]);
             else
-                this.#capsule_locations.push([(((i - 1) / 2) + 0.25) * canvas.width / num_capsules * 2, canvas.height / 6 + height]);
+                this.#capsuleLocations.push([(((i - 1) / 2) + 0.25) * canvas.width / (Math.ceil(numCapsules / 2) * 2) * 2, canvas.height - height - 10]);
         }
         this.#capsHeight = height;
         this.#capsWidth = width;
         this.#column = 0;
         this.#row = 0;
-        this.#active_index = -1;
-        this.#prev_moves = [];
+        this.#activeIndex = -1;
+        this.#prevMoves = [];
+        this.#solution = [];
+        this.#solutionIndex = 0;
     }
 
     // add an array of balls to a capsule
     // returns true if there is an empty capsule to add them to, and false otherwise
-    add_balls(ball_array) {
+    addBalls(ballArray) {
         for (let i = 0; i < this.#capsules.length; i++) {
             if (this.#capsules[i].isEmpty()) {
-                this.#capsules[i] = new Capsule(ball_array, this.#capsules[i].max_size);
+                this.#capsules[i] = new Capsule(ballArray, this.#capsules[i].maxSize);
                 return true;
             }
         }
@@ -156,7 +165,7 @@ class Game {
     }
 
     // moves left or right through the selected capsules if possible
-    move_horizontal(right) {
+    moveHorizontal(right) {
         if (right) {
             if ((2 * (this.#column + 1)) < this.#capsules.length)
                 this.#column++;
@@ -167,7 +176,7 @@ class Game {
     }
 
     // moves up or down through the selected capsules if possible
-    move_vertical(down) {
+    moveVertical(down) {
         if (down) {
             this.#row = 1;
         } else {
@@ -176,15 +185,15 @@ class Game {
     }
 
     // selects the capsule at the specified location if it exists
-    // then calls take_action
-    select_capsule(mouseX, mouseY) {
-        for (let i = 0; i < this.#capsule_locations.length; i++) {
-            let x_threshhold = this.#capsule_locations[i][0];
-            let y_threshhold = this.#capsule_locations[i][1];
-            if ((x_threshhold <= mouseX && mouseX <= x_threshhold + this.#capsWidth) && (y_threshhold <= mouseY && mouseY <= y_threshhold + this.#capsHeight)) {
+    // then calls takeAction
+    selectCapsule(mouseX, mouseY) {
+        for (let i = 0; i < this.#capsuleLocations.length; i++) {
+            let xThreshhold = this.#capsuleLocations[i][0];
+            let yThreshhold = this.#capsuleLocations[i][1];
+            if ((xThreshhold <= mouseX && mouseX <= xThreshhold + this.#capsWidth) && (yThreshhold <= mouseY && mouseY <= yThreshhold + this.#capsHeight)) {
                 this.#column = Math.floor(i / 2);
                 this.#row = i % 2;
-                this.take_action();
+                this.takeAction();
                 break;
             }
         }
@@ -194,19 +203,26 @@ class Game {
     // If no capsule is active, sets the active index to the currently selected capsule
     // If currently selected capsule is active, unactivates the capsule
     // Otherwise, attempts to move the top ball of the active capsule to the selected capsule
-    take_action() {
-        if (this.#active_index === -1)
-            this.#active_index = this.#column * 2 + this.#row;
-        else if (this.#active_index === this.#column * 2 + this.#row)
-            this.#active_index = -1;
+    takeAction() {
+        if (this.#activeIndex === -1)
+            this.#activeIndex = this.#column * 2 + this.#row;
+        else if (this.#activeIndex === this.#column * 2 + this.#row)
+            this.#activeIndex = -1;
         else {
-            let active_ball = this.#capsules[this.#active_index].getBall();
-            if (active_ball !== -1) {
-                if (this.#capsules[this.#column * 2 + this.#row].setBall(active_ball)) {
-                    this.#capsules[this.#active_index].removeBall();
-                    this.#prev_moves.push([this.#active_index, this.#column * 2 + this.#row]);
+            let activeBall = this.#capsules[this.#activeIndex].getBall();
+            if (activeBall !== -1) {
+                if (this.#capsules[this.#column * 2 + this.#row].setBall(activeBall)) {
+                    this.#capsules[this.#activeIndex].removeBall();
+                    if ((this.#solutionIndex >= 0) && (this.#solutionIndex < this.#solution.length)) {
+                        let hintMove = this.#solution[this.#solutionIndex];
+                        if ((hintMove[0] === this.#activeIndex) && (hintMove[1] === this.#column * 2 + this.#row))
+                            this.#solutionIndex++;
+                        else
+                            this.#solutionIndex = -1;
+                    }
+                    this.#prevMoves.push([this.#activeIndex, this.#column * 2 + this.#row]);
                 }
-                this.#active_index = -1;
+                this.#activeIndex = -1;
             }
         }
     }
@@ -221,14 +237,42 @@ class Game {
 
     // undoes the previous action if possible
     undo() {
-        if (this.#prev_moves.length > 0) {
-            let prev_move = this.#prev_moves.pop();
-            this.#capsules[prev_move[0]].forceSetBall(this.#capsules[prev_move[1]].getBall());
-            this.#capsules[prev_move[1]].removeBall();
-            this.#column = Math.floor(prev_move[0] / 2);
-            this.#row = prev_move[0] % 2;
+        if (this.#prevMoves.length > 0) {
+            let prevMove = this.#prevMoves.pop();
+            this.#capsules[prevMove[0]].forceSetBall(this.#capsules[prevMove[1]].getBall());
+            this.#capsules[prevMove[1]].removeBall();
+            this.#column = Math.floor(prevMove[0] / 2);
+            this.#row = prevMove[0] % 2;
+
+            if (this.#solution.length > 0) {
+                if (this.#solutionIndex > 0)
+                    this.#solutionIndex--;
+                else if (this.#solutionIndex === 0)
+                    this.#solution.unshift(prevMove);
+            }
         }
-        this.#active_index = -1;
+        this.#activeIndex = -1;
+    }
+
+    // converts the JSON solution into a list of moves
+    parseSolution(jsonSolution) {
+        this.#solution = [];
+        let data = JSON.parse(jsonSolution).solution;
+
+        for (let i = 0; i < data.length; i++) {
+            let move = JSON.parse(data[i]);
+            this.#solution.push([move.from, move.to]);
+        }
+        
+        this.#solutionIndex = 0;
+    }
+
+    // produces the latest move if possible
+    getHint() {
+        if ((this.#solution.length == 0) || (this.#solutionIndex < 0) || (this.#solutionIndex >= this.#solution.length)) {
+            return [-1,-1]
+        }
+        return this.#solution[this.#solutionIndex];
     }
 
     // Draw functions:
@@ -242,14 +286,22 @@ class Game {
         ctx.lineTo(x, y);
     }
 
-    #drawCapsule(ctx, x, y, selected) {
-
+    // Draws a capsule
+    // Highlights the capsule depending on whether its selected or if there is a hint involving this capsule
+    #drawCapsule(ctx, x, y, selected, hinted) {
         ctx.save();
 
-        if (selected) {
-            // Add a gold glow effect
-            ctx.shadowColor = "rgba(255, 215, 0, 1)"; // Gold glow with transparency
-            ctx.shadowBlur = 25; // Blur intensity
+        if (hinted) {
+            ctx.shadowColor = "rgba(255, 255, 0, 1)";
+            ctx.shadowBlur = 30; 
+            ctx.lineWidth = 15;
+            ctx.strokeStyle = "rgba(255, 255, 0, 0.5)";
+            ctx.beginPath();
+            this.#drawRectangle(ctx, x, y);
+            ctx.stroke();
+        } else if (selected) {
+            ctx.shadowColor = "rgba(255, 215, 0, 1)";
+            ctx.shadowBlur = 25;
             ctx.lineWidth = 15;
             ctx.strokeStyle = "rgba(255, 215, 0, 0.2)";
             ctx.beginPath();
@@ -260,21 +312,22 @@ class Game {
         ctx.restore();
 
         ctx.strokeStyle = "white"; 
-        ctx.lineWidth = 3; // Normal stroke thickness
+        ctx.lineWidth = 3;
 
         ctx.beginPath();
         this.#drawRectangle(ctx, x, y);
         ctx.stroke();
     }
 
-    draw(ctx) {
+    // Draws the game
+    draw(ctx, hinted) {
         for (let i = 0; i < this.#capsules.length / 2; i++) {
-            this.#drawCapsule(ctx, this.#capsule_locations[2 * i][0], this.#capsule_locations[2 * i][1], (this.#column == i) && (this.#row == 0));
-            this.#capsules[2 * i].draw(ctx, this.#capsule_locations[2 * i][0], this.#capsule_locations[2 * i][1], this.#capsHeight, this.#capsWidth, this.#active_index === 2 * i);
+            this.#drawCapsule(ctx, this.#capsuleLocations[2 * i][0], this.#capsuleLocations[2 * i][1], (this.#column == i) && (this.#row == 0), hinted === 2 * i);
+            this.#capsules[2 * i].draw(ctx, this.#capsuleLocations[2 * i][0], this.#capsuleLocations[2 * i][1], this.#capsHeight, this.#capsWidth, this.#activeIndex === 2 * i);
 
             if (2 * i + 1 < this.#capsules.length) {
-                this.#drawCapsule(ctx, this.#capsule_locations[2 * i + 1][0], this.#capsule_locations[2 * i + 1][1], (this.#column == i) && (this.#row == 1));
-                this.#capsules[2 * i + 1].draw(ctx, this.#capsule_locations[2 * i + 1][0], this.#capsule_locations[2 * i + 1][1], this.#capsHeight, this.#capsWidth, this.#active_index == 2 * i + 1);
+                this.#drawCapsule(ctx, this.#capsuleLocations[2 * i + 1][0], this.#capsuleLocations[2 * i + 1][1], (this.#column == i) && (this.#row == 1), hinted === 2 * i + 1);
+                this.#capsules[2 * i + 1].draw(ctx, this.#capsuleLocations[2 * i + 1][0], this.#capsuleLocations[2 * i + 1][1], this.#capsHeight, this.#capsWidth, this.#activeIndex == 2 * i + 1);
             }
         }
     }
@@ -285,7 +338,7 @@ class Game {
         for (let i = 0; i < this.#capsules.length; i++)
             jsonArray.push(this.#capsules[i].toJson());
         
-        return JSON.stringify({"balls": jsonArray, "max_size" : this.#capsules[0].max_size});
+        return JSON.stringify({"balls": jsonArray, "maxSize" : this.#capsules[0].maxSize});
     }
 }
 

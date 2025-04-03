@@ -12,9 +12,9 @@
 // NOTE: extern "C" is all functions Python can "see"
 extern "C" {
 
-    int** EXPORT ball_solution(int**, int, int, int*);
+    int** EXPORT ballSolution(int**, int, int, int*);
 
-    void EXPORT free_memory(int**, int);
+    void EXPORT freeMemory(int**, int);
 }
 
 #endif

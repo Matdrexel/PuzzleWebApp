@@ -6,29 +6,29 @@
 using namespace std;
 
 // Loop to find a solution to the ball sort game using brute force
-vector<pair<unsigned int, unsigned int>> solve_game(deque<Game>& game_wl) {
-    while (!game_wl.empty()) {
-        Game game = game_wl.front();
+vector<pair<unsigned int, unsigned int>> solveGame(deque<Game>& gameWL) {
+    while (!gameWL.empty()) {
+        Game game = gameWL.front();
 
         if (game.solved()) {
             return game.getMoves();
         }
-        game_wl.pop_front();
+        gameWL.pop_front();
 
         deque<Game> nexts = game.nextGames();
-        nexts.insert(nexts.end(), game_wl.begin(), game_wl.end());
-        game_wl = nexts;
+        nexts.insert(nexts.end(), gameWL.begin(), gameWL.end());
+        gameWL = nexts;
     }
     return {};
 }
 
 
 // Finds a solution to the ball sort game and converts it into integer pointers
-int** sort_water(int** game, int numCaps, int maxSize, int* resultSize) {
-    Game new_game(game, numCaps, maxSize);
-    deque<Game> game_wl; 
-    game_wl.push_back(new_game);
-    vector<pair<unsigned int, unsigned int>> moves = solve_game(game_wl);
+int** sortWater(int** game, int numCaps, int maxSize, int* resultSize) {
+    Game newGame(game, numCaps, maxSize);
+    deque<Game> gameWL; 
+    gameWL.push_back(newGame);
+    vector<pair<unsigned int, unsigned int>> moves = solveGame(gameWL);
 
     *resultSize = moves.size();
     int** res = new int*[*resultSize];

@@ -3,103 +3,148 @@ import { Game } from "./gameObjects.js";
 document.addEventListener("DOMContentLoaded", function() {
     const canvas = document.getElementById("ballCanvas");
     const ctx = canvas.getContext("2d");
-    
-    // Ball properties
-    let num_ball_colours = 10; // TODO: make this customizable
 
-    // Capsule properties
-    let max_size = 5; // TODO: make this customizable
-    let num_caps = num_ball_colours + 2;
-    let capsWidth = canvas.width / num_caps / 5 * 4;
-    let capsHeight = canvas.height / 5 * 2;
+    // Event Listener for Ball Colours Slider
+    document.getElementById("ballColours").addEventListener("input", function() {
+        document.getElementById("ballColoursValue").textContent = document.getElementById("ballColours").value;
+    });
 
-    // Game Properties
-    var gameOver = false;
-    var game = new Game(canvas, num_caps, max_size, capsWidth, capsHeight);
+    // Event Listener for Capsule Height Slider
+    document.getElementById("capsuleHeight").addEventListener("input", function() {
+        document.getElementById("capsuleHeightValue").textContent = document.getElementById("capsuleHeight").value;
+    });
 
-    function setUpGame() {
-        let balls = [];
-        for (let i = 0; i < num_ball_colours; i++) {
-            for (let j = 0; j < max_size; j++) {
-                balls.push(i);
-            }
-        }
-        let choose_balls = [];
-        while (balls.length !== 0) {
-            let index = Math.floor(Math.random() * balls.length)
-            choose_balls.push(balls[index]);
-            balls.splice(index, 1);
-    
-            if (choose_balls.length === max_size) {
-                if (!game.add_balls(choose_balls)) {
-                    throw new Error("Not enough capsules");
-                }
-                choose_balls = [];
-            }
-        }    
-    }
+    // Event listener for Start Game button
+    document.getElementById("startGameBtn").addEventListener("click", startGame);
 
-    // Event listener for "Play Again" button
+    // Event listener for Play Again button
     document.getElementById("playAgainBtn").addEventListener("click", resetGame);
 
-    // Event listener for "Undo" button
+    // Event listener for Undo button
     document.getElementById("undoBtn").addEventListener("click", undoMove);
 
-    // Event listener for "Hint" button
-    document.getElementById("hintBtn").addEventListener("click", updateSolution);
+    // Event listener for Hint button
+    document.getElementById("hintBtn").addEventListener("click", nextHint);
 
     // Event listeners for controls
     document.addEventListener("keydown", keyDownHandler);
 
+    // Game Properties
+    var gameOver = true;
+    var hint = [];
+    var hintAnimation = false;
+    var game = null;
+
+    // Begins the game using the user selected number of ball colours and capsule height
+    function startGame() {
+        let numBallColours = parseInt(document.getElementById("ballColours").value);
+        let maxSize = parseInt(document.getElementById("capsuleHeight").value);
+        let numCaps = numBallColours + 2;
+        let capsWidth = Math.min(((canvas.width / numCaps) / maxSize) * 3.2, canvas.height / 2.1 / maxSize);
+        let capsHeight = capsWidth * maxSize * 0.9;
+
+        game = new Game(canvas, numCaps, maxSize, capsWidth, capsHeight);
+        setUpGame(numBallColours, maxSize);
+
+        document.getElementById("customizationScreen").style.display = "none";
+        
+        gameOver = false;
+        requestAnimationFrame(gameLoop);
+    }
+
+    function setUpGame(numBallColours, maxSize) {
+        let balls = [];
+        for (let i = 0; i < numBallColours; i++) {
+            for (let j = 0; j < maxSize; j++) {
+                balls.push(i);
+            }
+        }
+        let chooseBalls = [];
+        while (balls.length !== 0) {
+            let index = Math.floor(Math.random() * balls.length)
+            chooseBalls.push(balls[index]);
+            balls.splice(index, 1);
+    
+            if (chooseBalls.length === maxSize) {
+                if (!game.addBalls(chooseBalls)) {
+                    throw new Error("Not enough capsules");
+                }
+                chooseBalls = [];
+            }
+        }    
+    }
+
+    // Handles key presses
     function keyDownHandler(e) {
+        if (gameOver)
+            return;
+        hint = [];
+
         if (e.key === "Right" || e.key === "ArrowRight" || e.key === "d" || e.key === "D") {
-            game.move_horizontal(true);
+            e.preventDefault();
+            game.moveHorizontal(true);
         } else if (e.key === "Left" || e.key === "ArrowLeft" || e.key === "a" || e.key === "A") {
-            game.move_horizontal(false);
+            e.preventDefault();
+            game.moveHorizontal(false);
         } else if (e.key === "Down" || e.key === "ArrowDown" || e.key === "s" || e.key === "S") {
-            game.move_vertical(true);
+            e.preventDefault();
+            game.moveVertical(true);
         } else if (e.key === "Up" || e.key === "ArrowUp" || e.key === "w" || e.key === "W") {
-            game.move_vertical(false);
+            e.preventDefault();
+            game.moveVertical(false);
         } else if (e.key === " ") {
-            game.take_action();
+            e.preventDefault();
+            game.takeAction();
         } else if (e.key === "u" || e.key === "U") {
-            game.undo();
+            e.preventDefault();
+            undoMove();
         }
         requestAnimationFrame(gameLoop);
         checkIfWon();
     }
 
-    // Handle mouse click
+    // Handles mouse clicks
     canvas.addEventListener("click", (event) => {
+        // gaurd for when game is not being played
+        if (gameOver)
+            return;
+
         const rect = canvas.getBoundingClientRect();
         const mouseX = event.clientX - rect.left;
         const mouseY = event.clientY - rect.top;
 
-        game.select_capsule(mouseX, mouseY);
+        game.selectCapsule(mouseX, mouseY);
+        hint = [];
         requestAnimationFrame(gameLoop);
         checkIfWon();
     });
 
-    // checks whether the user has solved the puzzle
+    // Checks whether the user has solved the puzzle
     function checkIfWon() {
         if (game.checkIfWon()) {
-            gameOver = true;
-            document.getElementById("winScreen").style.display = "block";
+            setTimeout(() => {
+                gameOver = true;
+                document.getElementById("winScreen").style.display = "block";
+            }, 10);
         }
     }
 
     // Resets the game if the user wants to
     function resetGame() {
-        game = new Game(canvas, num_caps, max_size, capsWidth, capsHeight);
-        setUpGame();
-        gameOver = false;
+        game = null;
+        gameOver = true;
+        hint = [];
         document.getElementById("winScreen").style.display = "none";
-        requestAnimationFrame(gameLoop);
+        document.getElementById("customizationScreen").style.display = "block";
     }
 
     // Undoes the previous move if possible
     function undoMove() {
+        if (gameOver)
+            return;
+
         game.undo();
+        hint = [];
         requestAnimationFrame(gameLoop);
     }
 
@@ -114,22 +159,24 @@ document.addEventListener("DOMContentLoaded", function() {
         return false;
     };
 
+    // Updates the hint list for the game
     socket.onmessage = function(event) {
-        let data = JSON.parse(event.data);
-        let solution = data.solution
-        
-        let move_list = "Next moves:<br>";
-        for (let i = 0; i < solution.length; i++) {
-            let move = JSON.parse(solution[i]);
-            move_list += "(" + move.from + "," + move.to + ")<br>"
+        game.parseSolution(event.data);
+        hint = game.getHint();
+
+        if (hint[0] === -1) {
+            hint = [];
+            document.getElementById("movelist").innerHTML = "Sorry, this puzzle is unsolvable :(";
+        } else {
+            nextMove();
         }
-        document.getElementById("movelist").innerHTML = move_list;
     };
 
+    // Sends the game data to the server to update the game hint list
     function updateSolution() {
         if (socket.readyState === WebSocket.OPEN) {
-            console.log("Made it here!");
             socket.send(game.toJson());
+            document.getElementById("movelist").innerHTML = "Loading Hint..."
         } else if (socket.readyState === WebSocket.CONNECTING) {
             console.warn("WebSocket not open yet. Retrying in 5000ms...");
             setTimeout(() => updateSolution(game), 5000);
@@ -138,10 +185,50 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     }
 
+    // Produces the next hint
+    function nextHint() {
+        // guard for before the game starts or after the game ends
+        if (gameOver)
+            return;
+
+        hint = game.getHint();
+        if (hint[0] === -1) {
+            hint = [];
+            updateSolution();
+        } else {
+            if (!hintAnimation)
+                nextMove();
+        }
+    }
+
+    // Flash capsules for a hint
+    function nextMove() {
+        document.getElementById("movelist").innerHTML = "Next move: (" + hint[0] + "," + hint[1] + ")";
+        requestAnimationFrame(gameLoop);
+    }
+
     // Draw functions
     function draw() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        game.draw(ctx, 0);
+        if (hint.length === 0)
+            game.draw(ctx, -1);
+        else {
+            hintAnimation = true;
+            game.draw(ctx, hint[0]);
+            setTimeout(() => {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                game.draw(ctx, -1);
+                setTimeout(() => {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    game.draw(ctx, hint.length === 0 ? -1 : hint[1]);
+                    setTimeout(() => {
+                        ctx.clearRect(0, 0, canvas.width, canvas.height);
+                        game.draw(ctx, -1);
+                        hintAnimation = false;
+                    }, 1000);
+                }, 500);
+            }, 1000);
+        }
     }
 
     function gameLoop() {
@@ -149,6 +236,5 @@ document.addEventListener("DOMContentLoaded", function() {
         draw();
     }
 
-    setUpGame();
-    requestAnimationFrame(gameLoop);
+    document.getElementById("customizationScreen").style.display = "block";
 });

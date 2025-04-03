@@ -15,34 +15,34 @@ else:
     libname = "sortballs.so"
 
 # Load the shared library
-lib_path = os.path.join(settings.BASE_DIR, "main", libname)
-solvelib = ctypes.CDLL(lib_path)
+libPath = os.path.join(settings.BASE_DIR, "main", libname)
+solvelib = ctypes.CDLL(libPath)
 
-solvelib.ball_solution.argtypes = (ctypes.POINTER(ctypes.POINTER(ctypes.c_int)), ctypes.c_int, ctypes.c_int, ctypes.POINTER(ctypes.c_int))
-solvelib.ball_solution.restype = ctypes.POINTER(ctypes.POINTER(ctypes.c_int))
+solvelib.ballSolution.argtypes = (ctypes.POINTER(ctypes.POINTER(ctypes.c_int)), ctypes.c_int, ctypes.c_int, ctypes.POINTER(ctypes.c_int))
+solvelib.ballSolution.restype = ctypes.POINTER(ctypes.POINTER(ctypes.c_int))
 
-solvelib.free_memory.argtypes = (ctypes.POINTER(ctypes.POINTER(ctypes.c_int)),ctypes.c_int)
+solvelib.freeMemory.argtypes = (ctypes.POINTER(ctypes.POINTER(ctypes.c_int)),ctypes.c_int)
 
-def solveSortBalls(ball_list, max_size):
-    num_capsules = len(ball_list)
-    if num_capsules == 0:
+def solveSortBalls(ballList, maxSize):
+    numCapsules = len(ballList)
+    if numCapsules == 0:
         return []
-    balls = np.array(ball_list, dtype=np.int32)
-    res_size = ctypes.c_int()
+    balls = np.array(ballList, dtype=np.int32)
+    resSize = ctypes.c_int()
 
-    ball_pointers = (ctypes.POINTER(ctypes.c_int) * num_capsules)()
-    for i in range(num_capsules):
-        ball_pointers[i] = balls[i].ctypes.data_as(ctypes.POINTER(ctypes.c_int))
+    ballPointers = (ctypes.POINTER(ctypes.c_int) * numCapsules)()
+    for i in range(numCapsules):
+        ballPointers[i] = balls[i].ctypes.data_as(ctypes.POINTER(ctypes.c_int))
 
     print("pre-solution")
-    result = solvelib.ball_solution(
-        ball_pointers, 
-        num_capsules, 
-        max_size,
-        ctypes.byref(res_size)
+    result = solvelib.ballSolution(
+        ballPointers, 
+        numCapsules, 
+        maxSize,
+        ctypes.byref(resSize)
     )
     print("post-solution")
 
-    result_memory = [[result[i][j] for j in range(2)] for i in range(res_size.value)]
-    solvelib.free_memory(result, res_size)
-    return result_memory
+    resultMemory = [[result[i][j] for j in range(2)] for i in range(resSize.value)]
+    solvelib.freeMemory(result, resSize)
+    return resultMemory

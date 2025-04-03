@@ -11,13 +11,13 @@ class MyWebSocketConsumer(AsyncWebsocketConsumer):
         data = json.loads(text_data)
 
         balls = data["balls"]  # List of balls
-        max_size = data["max_size"]
+        maxSize = data["maxSize"]
 
         # Convert list of dicts into list of tuples for C++ function
-        ball_list = [[json.loads(b)["ball"] for b in json.loads(c)["balls"]] for c in balls]
+        ballList = [[json.loads(b)["ball"] for b in json.loads(c)["balls"]] for c in balls]
 
         # Call C++ function
-        solution = solveSortBalls(ball_list, max_size)
+        solution = solveSortBalls(ballList, maxSize)
 
         # Convert back to json
         response = {"solution": [json.dumps({"from": pos[0], "to": pos[1]}) for pos in solution]}

@@ -8,15 +8,29 @@
     <link rel="stylesheet" href="{% static 'css/ballsort.css' %}">
 </head>
 <body>
-    <h1>Ball Sort</h1>
+    <h1>Ball Sort!</h1>
     
     <div class="game-container">
         <canvas id="ballCanvas" width="1000" height="600"></canvas>
         <button id="undoBtn">Undo</button>
         <button id="hintBtn">Hint</button>
     </div>
+
+    <div id="customizationScreen">
+        <div class="customization-container">
+            <h1>Customize Your Game</h1>
+        
+            <label for="ballColours">Number of Ball Colours: <span id="ballColoursValue">10</span></label>
+            <input type="range" id="ballColours" min="2" max="16" value="10">
+        
+            <label for="capsuleHeight">Capsule Height (Balls per Capsule): <span id="capsuleHeightValue">4</span></label>
+            <input type="range" id="capsuleHeight" min="2" max="7" value="4">
+        
+            <button id="startGameBtn">Start Game</button>
+        </div>
+    </div>
     
-    <div id="movelist">Next moves: (0, 0)</div>
+    <div id="movelist">Next move:</div>
     
     <div id="winScreen">
         <h1 id="winMessage">You Win!</h1>
