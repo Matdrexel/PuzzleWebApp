@@ -23,6 +23,7 @@ solvelib.ballSolution.restype = ctypes.POINTER(ctypes.POINTER(ctypes.c_int))
 
 solvelib.freeMemory.argtypes = (ctypes.POINTER(ctypes.POINTER(ctypes.c_int)),ctypes.c_int)
 
+# Function to solve the ball sort game
 def solveSortBalls(ballList, maxSize):
     numCapsules = len(ballList)
     if numCapsules == 0:

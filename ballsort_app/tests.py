@@ -2,7 +2,7 @@ from django.test import TestCase
 import time
 from ballsort_app.models import solveSortBalls
 
-# Create your tests here.
+# Tests for ball sort solver
 class TestBallSort(TestCase):    
     def _testCase(self, ballList, name, solvable):
         print("\nTesting", name, "(" + str(len(ballList)) + "," + str(len(ballList[0])) + ")")
